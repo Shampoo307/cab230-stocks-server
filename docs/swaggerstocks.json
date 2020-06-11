@@ -1,10 +1,10 @@
 { "openapi":"3.0.0",
     "info":{ 
-        "title":"Swagger Stocks",
-        "description":"This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.",
+        "title":"CAB230 Server Side Docs",
+        "description":"This is a simple Express API based on a Stocks database containing a selection of stock data from the American Stock Exchange.",
         "version":"1.0.0",
         "termsOfService":"http://swagger.io/terms/",
-        "contact":{"email":"apiteam@swagger.io"},
+        "contact":{"email":"n9960783@qut.edu.au"},
         "license":{
             "name":"Apache 2.0",
             "url":"http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -15,33 +15,72 @@
             "url": "http://localhost:3000"
         }
     ],
-    "basePath":"/v2",
+    "basePath":"/stocks",
     "tags":[
         { 
-          "name":"pet",
-          "description":"Everything about your Pets",
-          "externalDocs":{
-                            "description":"Find out more",
-                            "url":"http://swagger.io"
-                         }
-        },
-        { 
-          "name":"store",
-          "description":"Access to Petstore orders"
-        },
-        { 
-          "name":"user",
-          "description":"Operations about user",
-          "externalDocs":{ 
-                            "description":"Find out more about our store",
-                            "url":"http://swagger.io"
-                         } 
+          "name":"stocks",
+          "description":"General API Description"
         }
     ],
     "paths":{ 
-        "/pet":{ 
-            "post":{ 
-                "tags":["pet"],
+        "/stocks/symbols":{
+            "get":{
+                "tags":["Queries"],
+                "summary":"Returns all available stocks, optionally filtered by industry sector",
+                "description":"",
+                "operationId":"addPet",
+                "consumes":["application/json","application/xml"],
+                "produces":["application/xml","application/json"],
+                "parameters":[
+                    {
+                        "in":"query",
+                        "name":"industry",
+                        "description":"Sector or part thereof e.g. Information or mation will match Information Technology",
+                        "required":false,
+                        "schema":{
+                            "type": "object",
+                            "properties": {
+                                "Error": {
+                                    "type": "string",
+                                    "enum": ["true", "false"]
+                                },
+                                "Message": {
+                                    "type":"string",
+                                    "enum": ["Success", "Failuer"]
+                                },
+                                "Stocks": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "symbol": {
+                                                "type": "string"
+                                            },
+                                            "industry": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                     }],
+                "responses":{
+                    "200":{
+                           "description":"A JSON array of stock listing objects comprising name, symbol, and industry sector"
+                          },
+                    "400":{
+                        "description":"Invalid query parameter: only 'industry' is permitted"
+                    }
+                }
+            }
+        },
+        "/stocks/{symbol}":{
+            "get":{
+                "tags":["Queries"],
                 "summary":"Add a new pet to the store",
                 "description":"",
                 "operationId":"addPet",
@@ -54,17 +93,63 @@
                         "description":"Pet object that needs to be added to the store",
                         "required":true,
                         "schema":{"$ref":"#/definitions/Pet"}
-                     }],
+                    }],
                 "responses":{
                     "405":{
-                           "description":"Invalid input"
-                          }
+                        "description":"Invalid input"
+                    }
                 }
             }
         },
-        "/pet/findByStatus":{ 
+        "/stocks/authed/{symbol}":{
             "get":{
-                "tags":["pet"],
+                "tags":["Queries"],
+                "summary":"Add a new pet to the store",
+                "description":"",
+                "operationId":"addPet",
+                "consumes":["application/json","application/xml"],
+                "produces":["application/xml","application/json"],
+                "parameters":[
+                    {
+                        "in":"body",
+                        "name":"body",
+                        "description":"Pet object that needs to be added to the store",
+                        "required":true,
+                        "schema":{"$ref":"#/definitions/Pet"}
+                    }],
+                "responses":{
+                    "405":{
+                        "description":"Invalid input"
+                    }
+                }
+            }
+        },
+        "/user/register":{
+            "post":{
+                "tags":["Users"],
+                "summary":"Add a new pet to the store",
+                "description":"",
+                "operationId":"addPet",
+                "consumes":["application/json","application/xml"],
+                "produces":["application/xml","application/json"],
+                "parameters":[
+                    {
+                        "in":"body",
+                        "name":"body",
+                        "description":"Pet object that needs to be added to the store",
+                        "required":true,
+                        "schema":{"$ref":"#/definitions/Pet"}
+                    }],
+                "responses":{
+                    "405":{
+                        "description":"Invalid input"
+                    }
+                }
+            }
+        },
+        "/user/login":{
+            "post":{
+                "tags":["Users"],
                 "summary":"Finds Pets by status",
                 "description":"Multiple status values can be provided with comma separated strings",
                 "operationId":"findPetsByStatus",

@@ -1,16 +1,22 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+require("dotenv").config();
 
 const options = require('./knexfile.js');
 const knex = require('knex')(options);
+const swaggerUI = require('swagger-ui-express');
+const swaggerDocument = require('./docs/swaggerstocks.json');
+const helmet = require('helmet');
+const cors = require('cors');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 
-var app = express();
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,13 +28,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 app.use((req, res, next) => {
 	req.db = knex;
 	next();
 });
 
-app.use('/', indexRouter);
+app.use(logger('common'));
+app.use(helmet());
+app.use(cors());
+
+app.use('/stocks', indexRouter);
 app.use('/user', usersRouter);
+app.use('/', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -47,7 +59,7 @@ app.use(function(err, req, res, next) {
 });
 
 // morgan logger
-app.use(logger('common'));
+app.use(logger('dev'));
 logger.token('req', (req, res) => JSON.stringify(req.headers));
 logger.token('res', (req, res) => {
 	const headers = {}
