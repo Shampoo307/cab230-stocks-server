@@ -8,7 +8,8 @@ require("dotenv").config();
 const options = require('./knexfile.js');
 const knex = require('knex')(options);
 const swaggerUI = require('swagger-ui-express');
-const swaggerDocument = require('./docs/swaggerstocks.json');
+const yaml = require('yamljs');
+const swaggerDocument = yaml.load('./docs/swagger.ymal');
 const helmet = require('helmet');
 const cors = require('cors');
 
@@ -17,6 +18,11 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 
 const app = express();
+
+app.use((req, res, next) => {
+	req.db = knex;
+	next();
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -28,13 +34,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-app.use((req, res, next) => {
-	req.db = knex;
-	next();
-});
-
-app.use(logger('common'));
+// app.use(logger('common'));
 app.use(helmet());
 app.use(cors());
 
