@@ -8,7 +8,6 @@ router.get('/', function(req, res, next) {
 	res.send('respond with a resource');
 });
 
-
 router.post('/register', function(req, res, next) {
 	const email = req.body.email;
 	const password = req.body.password;
@@ -29,7 +28,6 @@ router.post('/register', function(req, res, next) {
 			if (users.length > 0) {
 				throw new Error('error');
 			}
-			
 			// Insert user into DB
 			const saltRounds = 10;
 			const hash = bcrypt.hashSync(password, saltRounds);
@@ -89,17 +87,6 @@ router.post('/login', function(req, res, next) {
 				message: "Incorrect email or password"
 			})
 		});
-	
-	// If user exists, verify passwords
-	
-	// If passwords match return JWT token
-	
-	// If passwords don't match, return error
-	
-	
-	// If user doesn't exist, return error
-
-
 });
 
 module.exports = router;
