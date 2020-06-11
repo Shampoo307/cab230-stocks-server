@@ -12,7 +12,7 @@
     },
     "servers":[ 
         {
-            "url": "http://localhost:3000"
+            "url": "http://localhost:3001"
         }
     ],
     "basePath":"/stocks",
@@ -23,31 +23,33 @@
         }
     ],
     "paths":{ 
-        "/stocks/symbols":{
-            "get":{
-                "tags":["Queries"],
-                "summary":"Returns all available stocks, optionally filtered by industry sector",
-                "description":"",
-                "operationId":"addPet",
-                "consumes":["application/json","application/xml"],
-                "produces":["application/xml","application/json"],
-                "parameters":[
+        "/stocks/symbols": {
+            "get": {
+                "tags": [
+                    "Queries"
+                ],
+                "summary": "Returns all available stocks, optionally filtered by industry sector",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
                     {
-                        "in":"query",
-                        "name":"industry",
-                        "description":"Sector or part thereof e.g. Information or mation will match Information Technology",
-                        "required":false,
-                        "schema":{
+                        "in": "query",
+                        "name": "industry",
+                        "description": "Sector or part thereof e.g. Information or mation will match Information Technology",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A JSON array of stock listing objects comprising name, symbol, and industry sector",
+                        "produces": [
+                            "application/json"
+                        ],
+                        "schema": {
                             "type": "object",
                             "properties": {
-                                "Error": {
-                                    "type": "string",
-                                    "enum": ["true", "false"]
-                                },
-                                "Message": {
-                                    "type":"string",
-                                    "enum": ["Success", "Failuer"]
-                                },
                                 "Stocks": {
                                     "type": "array",
                                     "items": {
@@ -67,13 +69,34 @@
                                 }
                             }
                         }
-                     }],
-                "responses":{
-                    "200":{
-                           "description":"A JSON array of stock listing objects comprising name, symbol, and industry sector"
-                          },
-                    "400":{
-                        "description":"Invalid query parameter: only 'industry' is permitted"
+                    },
+                    "400": {
+                        "description": "Invalid query parameter: only 'industry' is permitted",
+                        "produces": [
+                            "application/json"
+                        ],
+                        "properties": {
+                            "error": {
+                                "type": "boolean"
+                            },
+                            "message": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Industry sector not found",
+                        "produces": [
+                            "application/json"
+                        ],
+                        "properties": {
+                            "error": {
+                                "type": "boolean"
+                            },
+                            "message": {
+                                "type": "string"
+                            }
+                        }
                     }
                 }
             }
@@ -81,22 +104,83 @@
         "/stocks/{symbol}":{
             "get":{
                 "tags":["Queries"],
-                "summary":"Add a new pet to the store",
+                "summary":"Returns the latest entry for a particular stock searched by symbol (1-5 upper case letters)",
                 "description":"",
-                "operationId":"addPet",
-                "consumes":["application/json","application/xml"],
-                "produces":["application/xml","application/json"],
+                "produces":["application/json"],
                 "parameters":[
                     {
-                        "in":"body",
-                        "name":"body",
-                        "description":"Pet object that needs to be added to the store",
-                        "required":true,
-                        "schema":{"$ref":"#/definitions/Pet"}
-                    }],
+                        "in":"path",
+                        "name":"symbol",
+                        "description":"The exchange symbol of the stock",
+                        "required":true
+                    }
+                    ],
                 "responses":{
-                    "405":{
-                        "description":"Invalid input"
+                    "200":{
+                        "description":"A stock object",
+                        "produces":["application/json"],
+                        "schema":{
+                            "type": "object",
+                            "properties": {
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "timestamp": {
+                                            "type": "string"
+                                        },
+                                        "symbol": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "industry": {
+                                            "type": "string"
+                                        },
+                                        "open": {
+                                            "type": "number"
+                                        },
+                                        "high": {
+                                            "type": "number"
+                                        },
+                                        "low": {
+                                            "type": "number"
+                                        },
+                                        "close": {
+                                            "type": "number"
+                                        },
+                                        "volumes": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                    },
+                    "400":{
+                        "description":"Invalid query parameter(s)",
+                        "produces":["application/json"],
+                        "properties": {
+                            "error": {
+                                "type": "boolean"
+                            },
+                            "message": {
+                                "type":"string"
+                            }
+                        }
+                    },
+                    "404":{
+                        "description":"No entry for the symbol found in the stocks database",
+                        "produces":["application/json"],
+                        "properties": {
+                            "error": {
+                                "type": "boolean"
+                            },
+                            "message": {
+                                "type":"string"
+                            }
+                        }
                     }
                 }
             }
@@ -104,22 +188,135 @@
         "/stocks/authed/{symbol}":{
             "get":{
                 "tags":["Queries"],
-                "summary":"Add a new pet to the store",
+                "summary":"Return entries of stock searched by symbol, optionally filtered by date",
                 "description":"",
-                "operationId":"addPet",
-                "consumes":["application/json","application/xml"],
-                "produces":["application/xml","application/json"],
+                "produces":["application/json"],
                 "parameters":[
                     {
-                        "in":"body",
-                        "name":"body",
-                        "description":"Pet object that needs to be added to the store",
+                        "in":"path",
+                        "name":"symbol",
+                        "description":"The exchange symbol of the stock",
                         "required":true,
-                        "schema":{"$ref":"#/definitions/Pet"}
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "Stocks": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "symbol": {
+                                                "type": "string"
+                                            },
+                                            "industry": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "in":"query",
+                        "name":"from",
+                        "description":"Starting date of entries. Needs to be a string parsable for Date.Parse()",
+                        "required":false
+                    },
+                    {
+                        "in":"query",
+                        "name":"to",
+                        "description":"Finishing date of entries. Needs to be a string parsable for Date.Parse()",
+                        "required":false
                     }],
-                "responses":{
-                    "405":{
-                        "description":"Invalid input"
+                "responses": {
+                    "200": {
+                        "description": "One or more stock entries that meet the search criteria. By default, the response target will be a single object. If at least one valid to or from query is supplied with a valid date then the response will be an array of stock objects.",
+                        "produces": [
+                            "application/json"
+                        ],
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "timestamp": {
+                                            "type": "string"
+                                        },
+                                        "symbol": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "industry": {
+                                            "type": "string"
+                                        },
+                                        "open": {
+                                            "type": "number"
+                                        },
+                                        "high": {
+                                            "type": "number"
+                                        },
+                                        "low": {
+                                            "type": "number"
+                                        },
+                                        "close": {
+                                            "type": "number"
+                                        },
+                                        "volumes": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameter or date format",
+                        "produces": [
+                            "application/json"
+                        ],
+                        "properties": {
+                            "error": {
+                                "type": "boolean"
+                            },
+                            "message": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access denied",
+                        "produces": [
+                            "application/json"
+                        ],
+                        "properties": {
+                            "error": {
+                                "type": "boolean"
+                            },
+                            "message": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Queried data not found",
+                        "produces": [
+                            "application/json"
+                        ],
+                        "properties": {
+                            "error": {
+                                "type": "boolean"
+                            },
+                            "message": {
+                                "type": "string"
+                            }
+                        }
                     }
                 }
             }
@@ -127,22 +324,70 @@
         "/user/register":{
             "post":{
                 "tags":["Users"],
-                "summary":"Add a new pet to the store",
+                "summary":"Create a new user account",
                 "description":"",
-                "operationId":"addPet",
-                "consumes":["application/json","application/xml"],
-                "produces":["application/xml","application/json"],
+                "consumes":["application/json"],
+                "produces":["application/json"],
                 "parameters":[
                     {
-                        "in":"body",
-                        "name":"body",
-                        "description":"Pet object that needs to be added to the store",
-                        "required":true,
-                        "schema":{"$ref":"#/definitions/Pet"}
+                        "description": "No parameters"
                     }],
-                "responses":{
-                    "405":{
-                        "description":"Invalid input"
+                "requestBody": {
+                    "description": "User object to be registered",
+                    "consumes": ["application/json"],
+                    "required": false,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "email": {
+                                "type": "string"
+                            },
+                            "password": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "201": {
+                    "description": "User created",
+                    "produces": [
+                        "application/json"
+                    ],
+                    "properties": {
+                        "success": {
+                            "type": "boolean"
+                        },
+                        "message": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Bad request",
+                    "produces": [
+                        "application/json"
+                    ],
+                    "properties": {
+                        "error": {
+                            "type": "boolean"
+                        },
+                        "message": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "409": {
+                    "description": "User already exists",
+                    "produces": [
+                        "application/json"
+                    ],
+                    "properties": {
+                        "error": {
+                            "type": "boolean"
+                        },
+                        "message": {
+                            "type": "string"
+                        }
                     }
                 }
             }
@@ -150,36 +395,72 @@
         "/user/login":{
             "post":{
                 "tags":["Users"],
-                "summary":"Finds Pets by status",
-                "description":"Multiple status values can be provided with comma separated strings",
-                "operationId":"findPetsByStatus",
-                "produces":["application/xml","application/json"],
+                "summary":"Log in to an existing account",
+                "description":"",
+                "produces":["application/json"],
                 "parameters":[
                     {
-                        "name":"status",
-                        "in":"query",
-                        "description":"Status values that need to be considered for filter",
-                        "required":true,
-                        "type":"array",
-                        "items":{
-                            "type":"string",
-                            "enum":["available","pending","sold"],
-                            "default":"available"
-                        },
-                        "collectionFormat":"multi"
-                }],
-                "responses":{
-                    "200":{
-                        "description":"successful operation",
-                        "schema":{
-                            "type":"array",
-                            "items":{
-                                "$ref":"#/definitions/Pet"
+                        "description": "No parameters"
+                    }],
+                "requestBody": {
+                    "description": "User object to log in",
+                    "consumes": ["application/json"],
+                    "required": true,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "email": {
+                                "type": "string"
+                            },
+                            "password": {
+                                "type": "string"
                             }
                         }
-                    },
-                    "400":{
-                        "description":"Invalid status value"
+                    }
+                },
+                "200": {
+                    "description": "Log in successful",
+                    "produces": [
+                        "application/json"
+                    ],
+                    "properties": {
+                        "token": {
+                            "type": "boolean"
+                        },
+                        "token_type": {
+                            "type": "string"
+                        },
+                        "expires": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid log in request",
+                    "produces": [
+                        "application/json"
+                    ],
+                    "properties": {
+                        "error": {
+                            "type": "boolean"
+                        },
+                        "message": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Log in failed",
+                    "produces": [
+                        "application/json"
+                    ],
+                    "properties": {
+                        "error": {
+                            "type": "boolean"
+                        },
+                        "message": {
+                            "type": "string"
+                        }
                     }
                 }
             }

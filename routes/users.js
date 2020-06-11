@@ -37,7 +37,7 @@ router.post('/register', function(req, res, next) {
 			res.status(201).json({ success: true, message: "User created" });
 		})
 		.catch(error => {
-			res.status(400).json({
+			res.status(409).json({
 				error: true,
 				message: "User already exists"
 			});

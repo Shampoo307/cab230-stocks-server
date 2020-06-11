@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-	res.render('index', { title: 'Express' });
+	res.render('index', { title: 'CAB230 Stocks Server Side',
+			content: "This is the work of Thomas Crilly, n9960783. This is the base path of this Express based API. To see the docs, go to website:3001/" });
 });
 
 router.get("/symbols", function(req, res, next) {
